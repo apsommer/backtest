@@ -1,5 +1,6 @@
 import yfinance as yf
-from stub import Engine, Strategy
+from engine import Engine
+from strategy import Strategy
 
 # example data
 data = (yf.Ticker('AAPL').history(start='2020-01-01', end='2022-12-31', interval='1d'))

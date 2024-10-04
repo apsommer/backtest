@@ -31,15 +31,3 @@ class Engine():
 
     def _fill_orders(self):
         pass
-
-class Strategy():
-    def __init__(self):
-        pass
-
-class Trade():
-     def __init__(self):
-        pass
-
-class Order():
-    def __init__(self):
-        pass
