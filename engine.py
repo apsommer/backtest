@@ -27,7 +27,7 @@ class Engine():
             self.strategy.current_idx = self.current_idx
             self._fill_orders()
             # self.strategy.on_bar()
-            print(idx)
+            # print(idx)
 
     def _fill_orders(self):
         pass
