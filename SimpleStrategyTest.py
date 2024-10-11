@@ -8,7 +8,5 @@ class SimpleStrategyTest(Strategy):
 
         if self.position_size == 0:
             self.buy('AAPL', 1)
-            print(self.current_idx,"buy")
         else:
             self.sell('AAPL', 1)
-            print(self.current_idx,"sell")

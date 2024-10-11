@@ -56,6 +56,7 @@ class Engine():
 
                 self.strategy.trades.append(trade)
                 self.cash -= trade.price * trade.size
+                print(trade)
 
         # clear orders since they are processed
         self.strategy.orders = []
