@@ -1,7 +1,7 @@
 import pandas as pd
 from tqdm import tqdm
 
-from trade import Trade
+from Trade import Trade
 
 
 class Engine():
@@ -29,8 +29,7 @@ class Engine():
             self.current_idx = idx
             self.strategy.current_idx = self.current_idx
             self.fill_orders()
-            # self.strategy.on_bar()
-            # print(idx)
+            self.strategy.on_bar()
 
     def fill_orders(self):
 

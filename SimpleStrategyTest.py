@@ -1,4 +1,4 @@
-from strategy import Strategy
+from Strategy import Strategy
 
 # inherit from Strategy base class
 class SimpleStrategyTest(Strategy):
