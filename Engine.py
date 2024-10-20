@@ -28,8 +28,11 @@ class Engine():
         for idx in tqdm(self.data.index):
             self.current_idx = idx
             self.strategy.current_idx = self.current_idx
-            self.fill_orders()
             self.strategy.on_bar()
+            self._fill_orders()
+
+        stats = self._get_stats()
+        print(stats)
 
     def _fill_orders(self):
 
@@ -56,7 +59,7 @@ class Engine():
 
                 self.strategy.trades.append(trade)
                 self.cash -= trade.price * trade.size
-                print(trade)
+                # print(trade)
 
         # clear orders since they are processed
         self.strategy.orders = []
