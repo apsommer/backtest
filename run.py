@@ -21,13 +21,14 @@ class BuySellSwitchStrategy(Strategy):
             self.sell('AAPL', 1)
 
 # execute backtest
-e = Engine()
-e.add_data(data)
-e.add_strategy(BuySellSwitchStrategy())
+engine = Engine()
+engine.add_data(data)
+engine.add_strategy(BuySellSwitchStrategy())
+engine.run()
 
 # display results in terminal
-print("\n")
-e.run()
+stats = engine.get_stats()
+print(stats)
 print("\n")
 
 ########################################################################################################################
@@ -48,9 +49,8 @@ class BacktestingBuySellSwitchStrategy(backtesting.Strategy):
 
 # execute backtest
 bt = backtesting.Backtest(data, BacktestingBuySellSwitchStrategy, cash=100000)
-stats = bt.run()
 
 # display results in terminal
+stats = bt.run()
 print(stats)
-print("\n")
 # bt.plot()

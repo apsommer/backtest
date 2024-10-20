@@ -5,8 +5,6 @@ from Trade import Trade
 class Engine():
 
     def __init__(self, initial_cash=100000):
-
-        # private var
         self.initial_cash = initial_cash
         self.cash = initial_cash
         self.data = None
@@ -20,6 +18,8 @@ class Engine():
         self.strategy = strategy
 
     def run(self):
+
+        # pass data to strategy
         self.strategy.data = self.data
 
         # tqdm is command line progress bar
@@ -28,9 +28,6 @@ class Engine():
             self.strategy.current_idx = self.current_idx
             self.strategy.on_bar()
             self._fill_orders()
-
-        stats = self._get_stats()
-        print(stats)
 
     def _fill_orders(self):
 
@@ -59,10 +56,10 @@ class Engine():
                 self.cash -= trade.price * trade.size
                 # print(trade)
 
-        # clear orders since they are processed
+        # clear orders since they are now processed
         self.strategy.orders = []
 
-    def _get_stats(self):
+    def get_stats(self):
 
         metrics = { }
 
@@ -71,5 +68,4 @@ class Engine():
             * self.strategy.position_size + self.cash) / self.initial_cash - 1)
 
         metrics['total_return'] = total_return
-
         return metrics

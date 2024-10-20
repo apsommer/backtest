@@ -6,8 +6,6 @@ class Trade():
         self.type = type
         self.idx = idx
 
-        # todo consider Trade extending Order?
-        #  price is only unique attribute
         self.price = price
 
     # string representation of class, called "dunder" for double under underscores
