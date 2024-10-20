@@ -35,7 +35,7 @@ class Strategy():
                 side = 'buy',
                 size = size,
                 idx = self.current_idx,
-                order_type='limit',
+                order_type = 'limit',
                 limit_price = limit_price
             )
         )
@@ -47,7 +47,7 @@ class Strategy():
                 side = 'sell',
                 size = size,
                 idx = self.current_idx,
-                order_type='limit',
+                order_type = 'limit',
                 limit_price = limit_price
             )
         )

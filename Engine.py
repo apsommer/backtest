@@ -33,15 +33,47 @@ class Engine():
 
         for order in self.strategy.orders:
 
+            # todo temp
+            #  set fill_price to open
+            fill_price = self.data.loc[self.current_idx]['Open']
+
             can_fill = False
 
             # long: ensure enough cash exists to purchase qty
             if order.side == 'buy' and self.cash >= self.data.loc[self.current_idx]['Open'] * order.size:
-                can_fill = True
+
+                # limit buy filled if limit_price >= low
+                if order.type == 'limit':
+
+                    if order.limit_price >= self.data.loc[self.current_idx]['Low']:
+                        fill_price = order.limit_price
+                        can_fill = True
+                        print(self.current_idx, 'Buy Filled. ', "limit",order.limit_price," / low", self.data.loc[self.current_idx]['Low'])
+
+                    else:
+                        print(self.current_idx,'Buy NOT filled. ', "limit",order.limit_price," / low", self.data.loc[self.current_idx]['Low'])
+
+                # market, always fills
+                else:
+                    can_fill = True
 
             # flatten (short): ensure position size is larger than qty sell
             elif order.side == 'sell' and self.strategy.position_size >= order.size:
-                can_fill = True
+
+                # limit sell filled if limit_price <= high
+                if order.type == 'limit':
+
+                    if order.limit_price <= self.data.loc[self.current_idx]['High']:
+                        fill_price = order.limit_price
+                        can_fill = True
+                        print(self.current_idx, 'Sell filled. ', "limit", order.limit_price, " / high", self.data.loc[self.current_idx]['High'])
+
+                    else:
+                        print(self.current_idx, 'Sell NOT filled. ', "limit", order.limit_price, " / high", self.data.loc[self.current_idx]['High'])
+
+                # market, always fills
+                else:
+                    can_fill = True
 
             if can_fill:
                 trade = Trade(
@@ -56,7 +88,7 @@ class Engine():
                 self.cash -= trade.price * trade.size
                 # print(trade)
 
-        # clear orders since they are now processed
+        # clearing orders here assumes all limits orders are valid DAY, not GTC
         self.strategy.orders = []
 
     def get_stats(self):
