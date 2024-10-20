@@ -2,10 +2,13 @@ class Trade():
     def __init__(self, ticker, side, size, price, type, idx):
         self.ticker = ticker
         self.side = side
-        self.price = price
         self.size = size
         self.type = type
         self.idx = idx
+
+        # todo consider Trade extending Order?
+        #  price is only unique attribute
+        self.price = price
 
     # string representation of class, called "dunder" for double under underscores
     def __repr__(self):

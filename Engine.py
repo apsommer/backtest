@@ -1,8 +1,6 @@
 import pandas as pd
 from tqdm import tqdm
-
 from Trade import Trade
-
 
 class Engine():
 
