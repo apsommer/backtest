@@ -6,18 +6,18 @@ from Trade import Trade
 
 class Engine():
 
-    # initialize
     def __init__(self, initial_cash=100000):
 
         # private var
+        self.initial_cash = initial_cash
         self.cash = initial_cash
         self.data = None
         self.strategy = None
         self.current_idx = None
 
-    # setters
     def add_data(self, data: pd.DataFrame):
         self.data = data
+
     def add_strategy(self, strategy):
         self.strategy = strategy
 
@@ -31,7 +31,7 @@ class Engine():
             self.fill_orders()
             self.strategy.on_bar()
 
-    def fill_orders(self):
+    def _fill_orders(self):
 
         for order in self.strategy.orders:
 
@@ -60,3 +60,15 @@ class Engine():
 
         # clear orders since they are processed
         self.strategy.orders = []
+
+    def _get_stats(self):
+
+        metrics = { }
+
+        # calculate total percent return
+        total_return = 100 * ((self.data.loc[self.current_idx]['Close']
+            * self.strategy.position_size + self.cash) / self.initial_cash - 1)
+
+        metrics['total_return'] = total_return
+
+        return metrics
