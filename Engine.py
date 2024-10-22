@@ -10,6 +10,8 @@ class Engine():
         self.data = None
         self.strategy = None
         self.current_idx = None
+        self.cash_series = { }
+        self.stock_series = { }
 
     def add_data(self, data: pd.DataFrame):
         self.data = data
@@ -28,6 +30,10 @@ class Engine():
             self.strategy.current_idx = self.current_idx
             self.strategy.on_bar()
             self._fill_orders()
+
+            # track cash and stock holdings
+            self.cash_series[idx] = self.cash
+            self.stock_series[idx] = self.strategy.position_size * self.data.loc[self.current_idx]['Close']
 
     def _fill_orders(self):
 
