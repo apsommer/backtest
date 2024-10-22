@@ -56,6 +56,10 @@ class Strategy():
     def position_size(self):
         return sum([trade.size for trade in self.trades])
 
+    @property
+    def close(self):
+        return self.data.loc[self.current_idx]['Close']
+
     # creators will override/implement
     def on_bar(self):
         pass
