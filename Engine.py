@@ -102,8 +102,7 @@ class Engine():
         metrics = { }
 
         # benchmark, buy and hold max allowed shares from start to end
-        portfolio_bh = ((self.initial_cash / self.data.loc[self.data.index][0]['Open'])
-                        * self.data.Close)
+        portfolio_bh = ((self.initial_cash / self.data.loc[self.data.index[0]]['Open']) * self.data.Close)
 
         # init dataframe with cash and stock series
         portfolio = pd.DataFrame({'stock': self.stock_series, 'cash': self.cash_series})
@@ -114,11 +113,14 @@ class Engine():
         # calculate average exposure as average percent stock of total aum
         metrics['exposure_pct'] = ((portfolio['stock'] / portfolio['total_aum']) * 100).mean()
 
-        # todo annualized returns
-
-
-
-
+        # calculate annualized returns
+        # annual returns: 3%, 7%, ... n%
+        # ((1 + r_1) * (1 + r_2) * ... * (1 + r_n)) ^ (1/n) - 1
+        # iloc: index by integer position, loc: index by row label, index: alternate form of loc
+        p = portfolio.total_aum
+        metrics['returns_annualized'] = ((p.iloc[-1] / p.iloc[0]) ** (1 / ((p.index[-1] - p.index[0]).days / 365)) - 1) * 100
+        p_bh = portfolio_bh
+        metrics['returns_bh_annualized'] = ((p_bh.iloc[-1] / p_bh.iloc[0]) ** (1 / ((p_bh.index[-1] - p_bh.index[0]).days / 365)) - 1) * 100
 
         # calculate total percent return
         total_return = 100 * ((self.data.loc[self.current_idx]['Close']
