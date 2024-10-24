@@ -1,3 +1,4 @@
+import numpy as np
 import pandas as pd
 from tqdm import tqdm
 from Trade import Trade
@@ -122,9 +123,18 @@ class Engine():
         p_bh = portfolio_bh
         metrics['returns_bh_annualized'] = ((p_bh.iloc[-1] / p_bh.iloc[0]) ** (1 / ((p_bh.index[-1] - p_bh.index[0]).days / 365)) - 1) * 100
 
+        # calculate annualized volatility
+        # std_dev * sqrt(periods/year)
+        self.trading_days = 252 # working days per year
+        metrics['volatility_ann'] = p.pct_change().std() * np.sqrt(self.trading_days) * 100
+        metrics['volatility_bh_ann'] = p_bh.pct_change().std() * np.sqrt(self.trading_days) * 100
+
+
+
         # calculate total percent return
         total_return = 100 * ((self.data.loc[self.current_idx]['Close']
             * self.strategy.position_size + self.cash) / self.initial_cash - 1)
 
         metrics['total_return'] = total_return
+
         return metrics

@@ -1,6 +1,7 @@
 import yfinance as yf
 from Strategy import Strategy
 from Engine import Engine
+from print_dict import print_dict
 import backtesting as backtesting
 
 # example data
@@ -32,7 +33,8 @@ engine.run()
 
 # display results in terminal
 stats = engine.get_stats()
-print(stats)
+print("\n")
+print_dict(stats)
 print("\n")
 
 ########################################################################################################################
