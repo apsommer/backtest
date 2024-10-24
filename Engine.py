@@ -102,6 +102,13 @@ class Engine():
 
         metrics = { }
 
+        # calculate total percent return
+        total_return = 100 * ((self.data.loc[self.current_idx]['Close']
+            * self.strategy.position_size + self.cash) / self.initial_cash - 1)
+
+        metrics['total_return'] = total_return
+
+
         # benchmark, buy and hold max allowed shares from start to end
         portfolio_bh = ((self.initial_cash / self.data.loc[self.data.index[0]]['Open']) * self.data.Close)
 
@@ -129,12 +136,6 @@ class Engine():
         metrics['volatility_ann'] = p.pct_change().std() * np.sqrt(self.trading_days) * 100
         metrics['volatility_bh_ann'] = p_bh.pct_change().std() * np.sqrt(self.trading_days) * 100
 
-
-
-        # calculate total percent return
-        total_return = 100 * ((self.data.loc[self.current_idx]['Close']
-            * self.strategy.position_size + self.cash) / self.initial_cash - 1)
-
-        metrics['total_return'] = total_return
+        # todo sharpe ratio
 
         return metrics
