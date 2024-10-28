@@ -11,6 +11,8 @@ class Engine():
         self.data = None
         self.strategy = None
         self.current_idx = None
+        self.trading_days = 252 # working days per year
+        self.risk_free_rate = 0 # for sharpe ratio calculation
         self.cash_series = { }
         self.stock_series = { }
 
@@ -115,14 +117,14 @@ class Engine():
         # init dataframe with cash and stock series
         portfolio = pd.DataFrame({'stock': self.stock_series, 'cash': self.cash_series})
 
-        # calculate total assets under management as simple sum
+        # total assets under management, simple sum
         portfolio['total_aum'] = portfolio['stock'] + portfolio['cash']
 
-        # calculate average exposure as average percent stock of total aum
+        # average exposure = percent of stock in total aum
         metrics['exposure_pct'] = ((portfolio['stock'] / portfolio['total_aum']) * 100).mean()
 
-        # calculate annualized returns
-        # annual returns: 3%, 7%, ... n%
+        # annualized returns
+        # ex, annual returns: 3%, 7%, ... n%
         # ((1 + r_1) * (1 + r_2) * ... * (1 + r_n)) ^ (1/n) - 1
         # iloc: index by integer position, loc: index by row label, index: alternate form of loc
         p = portfolio.total_aum
@@ -130,12 +132,11 @@ class Engine():
         p_bh = portfolio_bh
         metrics['returns_bh_annualized'] = ((p_bh.iloc[-1] / p_bh.iloc[0]) ** (1 / ((p_bh.index[-1] - p_bh.index[0]).days / 365)) - 1) * 100
 
-        # calculate annualized volatility
+        # annualized volatility
         # std_dev * sqrt(periods/year)
-        self.trading_days = 252 # working days per year
         metrics['volatility_ann'] = p.pct_change().std() * np.sqrt(self.trading_days) * 100
         metrics['volatility_bh_ann'] = p_bh.pct_change().std() * np.sqrt(self.trading_days) * 100
 
-        # todo sharpe ratio
+        # sharpe ratio
 
         return metrics
