@@ -138,5 +138,9 @@ class Engine():
         metrics['volatility_bh_ann'] = p_bh.pct_change().std() * np.sqrt(self.trading_days) * 100
 
         # sharpe ratio
+        # sr = (rate - risk_free_rate) / volatility
+        metrics['sharpe_ratio'] = (metrics['returns_annualized'] - self.risk_free_rate) / metrics['volatility_ann']
+        metrics['sharpe_ratio_bh'] = (metrics['returns_bh_annualized'] - self.risk_free_rate) / metrics['volatility_bh_ann']
+
 
         return metrics
