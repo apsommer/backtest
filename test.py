@@ -1,7 +1,6 @@
 import yfinance as yf
 from Strategy import Strategy
-from Engine import Engine
-from print_dict import print_dict
+from Engine import Engine, print_stats
 import backtesting as backtesting
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -16,8 +15,8 @@ data = (yf.Ticker('AAPL').history(
     end = '2022-12-31',
     interval = '1d'))
 
-data.Close.plot()
-plt.show()
+# data.Close.plot()
+# plt.show()
 
 # inherit from base Strategy by passing it as argument
 class BuyLimitStrategy(Strategy):
@@ -27,7 +26,7 @@ class BuyLimitStrategy(Strategy):
 
         if self.position_size == 0:
             limit_price = self.close * 0.995
-            self.buy_limit('AAPL', size = 100, limit_price = limit_price)
+            self.buy_limit('AAPL', size = 8.319, limit_price = limit_price)
             print(self.current_idx, "buy_limit")
 
         # else:
@@ -43,14 +42,9 @@ engine.run()
 
 # display results in terminal
 stats = engine.get_stats()
-print("\n")
-print_dict(stats)
-print("\n")
+print_stats(stats)
 
 ########################################################################################################################
-########################################################################################################################
-########################################################################################################################
-
 """ Validate strategy by duplicating it with popular backtesting library backtesting.py """
 
 # inherit from Strategy base class
@@ -68,5 +62,5 @@ bt = backtesting.Backtest(data, BacktestingBuySellSwitchStrategy, cash=100000)
 
 # display results in terminal
 stats = bt.run()
-print(stats)
+# print(stats)
 # bt.plot()

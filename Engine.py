@@ -3,7 +3,7 @@ import pandas as pd
 from tqdm import tqdm
 from Trade import Trade
 
-class Engine():
+class Engine:
 
     def __init__(self, initial_cash=100000):
         self.initial_cash = initial_cash
@@ -166,3 +166,11 @@ def get_max_drawdown(close):
     daily_drawdown = close / roll_max - 1.0
     max_daily_drawdown = daily_drawdown.cummin()
     return max_daily_drawdown.min() * 100
+
+def print_stats(metrics):
+    print("")
+    print("Performance:")
+    print("")
+    for stat, value in metrics.items():
+        print("{}: {}".format(stat, round(value, 3)))
+    print("")
