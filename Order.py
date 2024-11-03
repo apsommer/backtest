@@ -4,6 +4,5 @@ class Order():
         self.side = side
         self.size = size
         self.idx = idx
-
         self.type = order_type
         self.limit_price = limit_price

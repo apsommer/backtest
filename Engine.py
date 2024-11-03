@@ -1,3 +1,5 @@
+from gc import get_stats
+
 import numpy as np
 import pandas as pd
 from tqdm import tqdm
@@ -26,6 +28,7 @@ class Engine:
 
         # pass data to strategy
         self.strategy.data = self.data
+        # self.strategy.cash = self.cash
 
         # tqdm is command line progress bar
         for idx in tqdm(self.data.index):
@@ -38,14 +41,14 @@ class Engine:
             self.cash_series[idx] = self.cash
             self.stock_series[idx] = self.strategy.position_size * self.data.loc[self.current_idx]['Close']
 
+        return get_stats()
+
     def _fill_orders(self):
 
         for order in self.strategy.orders:
 
-            # todo temp
-            #  set fill_price to open
+            # todo set fill_price to open
             fill_price = self.data.loc[self.current_idx]['Open']
-
             can_fill = False
 
             # long: ensure enough cash exists to purchase qty
@@ -95,7 +98,7 @@ class Engine:
 
                 self.strategy.trades.append(trade)
                 self.cash -= trade.price * trade.size
-                # print(trade)
+                # self.strategy.cash = self.cash
 
         # clearing orders here assumes all limits orders are valid DAY, not GTC
         self.strategy.orders = []
@@ -172,5 +175,5 @@ def print_stats(metrics):
     print("Performance:")
     print("")
     for stat, value in metrics.items():
-        print("{}: {}".format(stat, round(value, 3)))
+        print("{}: {}".format(stat, round(value, 5)))
     print("")

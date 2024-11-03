@@ -7,6 +7,7 @@ class Strategy():
         self.data = None
         self.orders = []
         self.trades = []
+        # self.cash = None
 
     def buy(self, ticker, size=1):
         self.orders.append(
