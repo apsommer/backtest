@@ -136,7 +136,7 @@ class Engine:
                 * 100)
 
         ref = portfolio_ref
-        metrics['returns_ref_annualized'] = (
+        metrics['returns_annualized_ref'] = (
                 ((ref.iloc[-1] / ref.iloc[0])
                 ** (1 / ((ref.index[-1] - ref.index[0]).days / 365)) - 1)
                 * 100)
@@ -144,7 +144,7 @@ class Engine:
         # annualized volatility: std_dev * sqrt(periods/year)
         metrics['volatility_ann'] = (
                 aum.pct_change().std() * np.sqrt(self.trading_days) * 100)
-        metrics['volatility_ref_ann'] = (
+        metrics['volatility_ann_ref'] = (
                 ref.pct_change().std() * np.sqrt(self.trading_days) * 100)
 
         # sharpe ratio: (rate - risk_free_rate) / volatility
@@ -152,8 +152,8 @@ class Engine:
                 (metrics['returns_annualized']
                  - self.risk_free_rate) / metrics['volatility_ann'])
         metrics['sharpe_ratio_ref'] = (
-                (metrics['returns_ref_annualized']
-                 - self.risk_free_rate) / metrics['volatility_ref_ann'])
+                (metrics['returns_annualized_ref']
+                 - self.risk_free_rate) / metrics['volatility_ann_ref'])
 
         # max drawdown, percent
         metrics['max_drawdown'] = get_max_drawdown(portfolio.total_aum)
