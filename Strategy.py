@@ -7,7 +7,7 @@ class Strategy():
         self.data = None
         self.orders = []
         self.trades = []
-        # self.cash = None
+        self.cash = None
 
     def buy(self, ticker, size=1):
         self.orders.append(
@@ -61,7 +61,7 @@ class Strategy():
     def close(self):
         return self.data.loc[self.current_idx]['Close']
 
-    # creators will override/implement
     def on_bar(self):
+        """ Overriden by instances """
         pass
 

@@ -7,16 +7,21 @@ from Trade import Trade
 
 class Engine:
 
-    def __init__(self, initial_cash=100000):
+    def __init__(self, initial_cash=100_000):
         self.initial_cash = initial_cash
         self.cash = initial_cash
         self.data = None
         self.strategy = None
         self.current_idx = None
-        self.trading_days = 252 # working days per year
-        self.risk_free_rate = 0 # for sharpe ratio calculation
+
+        # self.trading_days = 252 # working days per year
+        # self.risk_free_rate = 0 # for sharpe ratio calculation
+
         self.cash_series = { }
         self.stock_series = { }
+
+        # self.portfolio = None
+        # self.portfolio_buy_hold = None
 
     def add_data(self, data: pd.DataFrame):
         self.data = data
@@ -28,20 +33,23 @@ class Engine:
 
         # pass data to strategy
         self.strategy.data = self.data
-        # self.strategy.cash = self.cash
+        self.strategy.cash = self.cash
 
-        # tqdm is command line progress bar
-        for idx in tqdm(self.data.index):
+        # tqdm library shows progress bar in terminal
+        for idx in tqdm(self.data.index, colour = 'BLUE'):
+
             self.current_idx = idx
             self.strategy.current_idx = self.current_idx
-            self.strategy.on_bar()
+
+            # fill orders from previous period
             self._fill_orders()
+            self.strategy.on_bar()
 
             # track cash and stock holdings
             self.cash_series[idx] = self.cash
             self.stock_series[idx] = self.strategy.position_size * self.data.loc[self.current_idx]['Close']
 
-        return get_stats()
+        return self._get_stats()
 
     def _fill_orders(self):
 
@@ -58,12 +66,13 @@ class Engine:
                 if order.type == 'limit':
 
                     if order.limit_price >= self.data.loc[self.current_idx]['Low']:
+
                         fill_price = order.limit_price
                         can_fill = True
-                        print(self.current_idx, 'Buy Filled. ', "limit",order.limit_price," / low", self.data.loc[self.current_idx]['Low'])
+                        print(self.current_idx, 'Buy Filled. ', "limit", order.limit_price," / low", self.data.loc[self.current_idx]['Low'])
 
                     else:
-                        print(self.current_idx,'Buy NOT filled. ', "limit",order.limit_price," / low", self.data.loc[self.current_idx]['Low'])
+                        print(self.current_idx,'Buy NOT filled. ', "limit", order.limit_price," / low", self.data.loc[self.current_idx]['Low'])
 
                 # market, always fills
                 else:
@@ -76,6 +85,7 @@ class Engine:
                 if order.type == 'limit':
 
                     if order.limit_price <= self.data.loc[self.current_idx]['High']:
+
                         fill_price = order.limit_price
                         can_fill = True
                         print(self.current_idx, 'Sell filled. ', "limit", order.limit_price, " / high", self.data.loc[self.current_idx]['High'])
@@ -91,76 +101,68 @@ class Engine:
                 trade = Trade(
                     ticker = order.ticker,
                     side = order.side,
-                    price = self.data.loc[self.current_idx]['Open'],
+                    price = fill_price,
                     size = order.size,
                     type = order.type,
                     idx = self.current_idx)
 
                 self.strategy.trades.append(trade)
                 self.cash -= trade.price * trade.size
-                # self.strategy.cash = self.cash
+                self.strategy.cash = self.cash
 
         # clearing orders here assumes all limits orders are valid DAY, not GTC
         self.strategy.orders = []
 
-    def get_stats(self):
+    def _get_stats(self):
+
+        metrics = {}
+
+        # total percent return
+        metrics['total_return'] = (
+                ((self.data.loc[self.current_idx]['Close']
+                * self.strategy.position_size + self.cash) / self.initial_cash - 1) * 100)
+
+        # benchmark reference: buy and hold max allowed shares from start to end
+        portfolio_buy_hold = (self.initial_cash / self.data.loc[self.data.index[0]]['Open']) * self.data.Close
 
         portfolio = pd.DataFrame({
             'stock': self.stock_series,
             'cash': self.cash_series})
 
-        # benchmark reference: buy and hold max allowed shares from start to end
-        portfolio_ref = (
-                (self.initial_cash / self.data.loc[self.data.index[0]]['Open'])
-                * self.data.Close)
-
-        metrics = { }
-
-        # percent return
-        metrics['total_return'] = (
-                ((self.data.loc[self.current_idx]['Close']
-                * self.strategy.position_size + self.cash) / self.initial_cash - 1) * 100)
-
         # assets under management
-        portfolio['total_aum'] = (
-                portfolio['stock']
-                + portfolio['cash'])
+        portfolio['total_aum'] = portfolio['stock'] + portfolio['cash']
 
         # average exposure: percent of stock relative to total aum
-        metrics['exposure_pct'] = (
-            ((portfolio['stock'] / portfolio['total_aum'])
-            * 100).mean())
+        metrics['exposure_pct'] = ((portfolio['stock'] / portfolio['total_aum']) * 100).mean()
 
         # annualized returns: ((1 + r_1) * (1 + r_2) * ... * (1 + r_n)) ^ (1/n) - 1
         aum = portfolio.total_aum
         metrics['returns_annualized'] = (
                 ((aum.iloc[-1] / aum.iloc[0])
-                ** (1 / ((aum.index[-1] - aum.index[0]).days / 365)) - 1)
-                * 100)
+                ** (1 / ((aum.index[-1] - aum.index[0]).days / 365)) - 1) * 100)
 
-        ref = portfolio_ref
-        metrics['returns_annualized_ref'] = (
+        ref = portfolio_buy_hold
+        metrics['returns_annualized_buy_hold'] = (
                 ((ref.iloc[-1] / ref.iloc[0])
-                ** (1 / ((ref.index[-1] - ref.index[0]).days / 365)) - 1)
-                * 100)
+                ** (1 / ((ref.index[-1] - ref.index[0]).days / 365)) - 1) * 100)
 
         # annualized volatility: std_dev * sqrt(periods/year)
-        metrics['volatility_ann'] = (
-                aum.pct_change().std() * np.sqrt(self.trading_days) * 100)
-        metrics['volatility_ann_ref'] = (
-                ref.pct_change().std() * np.sqrt(self.trading_days) * 100)
+        self.trading_days = 252
+        metrics['volatility_ann'] = aum.pct_change().std() * np.sqrt(self.trading_days) * 100
+        metrics['volatility_ann_buy_hold'] = ref.pct_change().std() * np.sqrt(self.trading_days) * 100
 
         # sharpe ratio: (rate - risk_free_rate) / volatility
-        metrics['sharpe_ratio'] = (
-                (metrics['returns_annualized']
-                 - self.risk_free_rate) / metrics['volatility_ann'])
-        metrics['sharpe_ratio_ref'] = (
-                (metrics['returns_annualized_ref']
-                 - self.risk_free_rate) / metrics['volatility_ann_ref'])
+        self.risk_free_rate = 0
+        metrics['sharpe_ratio'] = (metrics['returns_annualized'] - self.risk_free_rate) / metrics['volatility_ann']
+        metrics['sharpe_ratio_buy_hold'] = (metrics['returns_annualized_buy_hold'] - self.risk_free_rate) / metrics['volatility_ann_buy_hold']
 
         # max drawdown, percent
         metrics['max_drawdown'] = get_max_drawdown(portfolio.total_aum)
-        metrics['max_drawdown_ref'] = get_max_drawdown(portfolio_ref)
+        metrics['max_drawdown_buy_hold'] = get_max_drawdown(portfolio_buy_hold)
+
+        # capture portfolios for plotting
+        self.portfolio = portfolio
+        self.portfolio_buy_hold = portfolio_buy_hold
 
         return metrics
 

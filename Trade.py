@@ -5,7 +5,6 @@ class Trade():
         self.size = size
         self.type = type
         self.idx = idx
-
         self.price = price
 
     # string representation of class, called "dunder" for double under underscores

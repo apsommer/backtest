@@ -2,10 +2,8 @@ import yfinance as yf
 from Engine import Engine, print_stats
 from Strategy import Strategy
 
-# inherit from base Strategy by passing it as argument
 class SMACrossover(Strategy):
 
-    # override/implement on_bar
     def on_bar(self):
 
         # if flat, ...

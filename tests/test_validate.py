@@ -21,10 +21,9 @@ data = (yf.Ticker('AAPL').history(
 engine = Engine()
 engine.add_data(data)
 engine.add_strategy(BuyAndSellSwitchStrategy())
-engine.run()
+stats = engine.run()
 
 # display results in terminal
-stats = engine.get_stats()
 print_stats(stats)
 
 ########################################################################################################################
