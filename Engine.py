@@ -102,45 +102,67 @@ class Engine():
 
     def get_stats(self):
 
+        portfolio = pd.DataFrame({
+            'stock': self.stock_series,
+            'cash': self.cash_series})
+
+        # benchmark reference: buy and hold max allowed shares from start to end
+        portfolio_ref = (
+                (self.initial_cash / self.data.loc[self.data.index[0]]['Open'])
+                * self.data.Close)
+
         metrics = { }
 
-        # calculate total percent return
-        total_return = 100 * ((self.data.loc[self.current_idx]['Close']
-            * self.strategy.position_size + self.cash) / self.initial_cash - 1)
+        # percent return
+        metrics['total_return'] = (
+                ((self.data.loc[self.current_idx]['Close']
+                * self.strategy.position_size + self.cash) / self.initial_cash - 1) * 100)
 
-        metrics['total_return'] = total_return
+        # assets under management
+        portfolio['total_aum'] = (
+                portfolio['stock']
+                + portfolio['cash'])
 
+        # average exposure: percent of stock relative to total aum
+        metrics['exposure_pct'] = (
+            ((portfolio['stock'] / portfolio['total_aum'])
+            * 100).mean())
 
-        # benchmark, buy and hold max allowed shares from start to end
-        portfolio_bh = ((self.initial_cash / self.data.loc[self.data.index[0]]['Open']) * self.data.Close)
+        # annualized returns: ((1 + r_1) * (1 + r_2) * ... * (1 + r_n)) ^ (1/n) - 1
+        aum = portfolio.total_aum
+        metrics['returns_annualized'] = (
+                ((aum.iloc[-1] / aum.iloc[0])
+                ** (1 / ((aum.index[-1] - aum.index[0]).days / 365)) - 1)
+                * 100)
 
-        # init dataframe with cash and stock series
-        portfolio = pd.DataFrame({'stock': self.stock_series, 'cash': self.cash_series})
+        ref = portfolio_ref
+        metrics['returns_ref_annualized'] = (
+                ((ref.iloc[-1] / ref.iloc[0])
+                ** (1 / ((ref.index[-1] - ref.index[0]).days / 365)) - 1)
+                * 100)
 
-        # total assets under management, simple sum
-        portfolio['total_aum'] = portfolio['stock'] + portfolio['cash']
+        # annualized volatility: std_dev * sqrt(periods/year)
+        metrics['volatility_ann'] = (
+                aum.pct_change().std() * np.sqrt(self.trading_days) * 100)
+        metrics['volatility_ref_ann'] = (
+                ref.pct_change().std() * np.sqrt(self.trading_days) * 100)
 
-        # average exposure = percent of stock in total aum
-        metrics['exposure_pct'] = ((portfolio['stock'] / portfolio['total_aum']) * 100).mean()
+        # sharpe ratio: (rate - risk_free_rate) / volatility
+        metrics['sharpe_ratio'] = (
+                (metrics['returns_annualized']
+                 - self.risk_free_rate) / metrics['volatility_ann'])
+        metrics['sharpe_ratio_ref'] = (
+                (metrics['returns_ref_annualized']
+                 - self.risk_free_rate) / metrics['volatility_ref_ann'])
 
-        # annualized returns
-        # ex, annual returns: 3%, 7%, ... n%
-        # ((1 + r_1) * (1 + r_2) * ... * (1 + r_n)) ^ (1/n) - 1
-        # iloc: index by integer position, loc: index by row label, index: alternate form of loc
-        p = portfolio.total_aum
-        metrics['returns_annualized'] = ((p.iloc[-1] / p.iloc[0]) ** (1 / ((p.index[-1] - p.index[0]).days / 365)) - 1) * 100
-        p_bh = portfolio_bh
-        metrics['returns_bh_annualized'] = ((p_bh.iloc[-1] / p_bh.iloc[0]) ** (1 / ((p_bh.index[-1] - p_bh.index[0]).days / 365)) - 1) * 100
-
-        # annualized volatility
-        # std_dev * sqrt(periods/year)
-        metrics['volatility_ann'] = p.pct_change().std() * np.sqrt(self.trading_days) * 100
-        metrics['volatility_bh_ann'] = p_bh.pct_change().std() * np.sqrt(self.trading_days) * 100
-
-        # sharpe ratio
-        # sr = (rate - risk_free_rate) / volatility
-        metrics['sharpe_ratio'] = (metrics['returns_annualized'] - self.risk_free_rate) / metrics['volatility_ann']
-        metrics['sharpe_ratio_bh'] = (metrics['returns_bh_annualized'] - self.risk_free_rate) / metrics['volatility_bh_ann']
-
+        # max drawdown, percent
+        metrics['max_drawdown'] = get_max_drawdown(portfolio.total_aum)
+        metrics['max_drawdown_ref'] = get_max_drawdown(portfolio_ref)
 
         return metrics
+
+def get_max_drawdown(close):
+    roll_max = close.cummax()
+    daily_drawdown = close / roll_max - 1.0
+    max_daily_drawdown = daily_drawdown.cummin()
+    return max_daily_drawdown.min() * 100

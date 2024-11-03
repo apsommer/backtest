@@ -63,3 +63,4 @@ class Strategy():
     # creators will override/implement
     def on_bar(self):
         pass
+

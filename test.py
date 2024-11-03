@@ -12,15 +12,15 @@ plt.rcParams['figure.figsize'] = [20, 12]
 
 # example data
 data = (yf.Ticker('AAPL').history(
-    start='2007-12-01',
-    end='2009-12-31',
-    interval='1d'))
+    start = '2020-12-01',
+    end = '2022-12-31',
+    interval = '1d'))
 
-close = data.Close
-close.plot()
+data.Close.plot()
+plt.show()
 
-# inherit from Strategy base class
-class BuySellSwitchStrategy(Strategy):
+# inherit from base Strategy by passing it as argument
+class BuyLimitStrategy(Strategy):
 
     # override/implement on_bar
     def on_bar(self):
@@ -29,15 +29,16 @@ class BuySellSwitchStrategy(Strategy):
             limit_price = self.close * 0.995
             self.buy_limit('AAPL', size = 100, limit_price = limit_price)
             print(self.current_idx, "buy_limit")
-        else:
-            limit_price = self.close * 1.005
-            self.sell_limit('AAPL', size = 100, limit_price = limit_price)
-            print(self.current_idx, "sell_limit")
+
+        # else:
+        #     limit_price = self.close * 1.005
+        #     self.sell_limit('AAPL', size = 100, limit_price = limit_price)
+        #     print(self.current_idx, "sell_limit")
 
 # execute backtest
-engine = Engine()
+engine = Engine(initial_cash = 1000)
 engine.add_data(data)
-engine.add_strategy(BuySellSwitchStrategy())
+engine.add_strategy(BuyLimitStrategy())
 engine.run()
 
 # display results in terminal
@@ -50,7 +51,7 @@ print("\n")
 ########################################################################################################################
 ########################################################################################################################
 
-""" Validate BuySellSwitchStrategy by duplicating it using popular backtesting library backtesting.py """
+""" Validate strategy by duplicating it with popular backtesting library backtesting.py """
 
 # inherit from Strategy base class
 class BacktestingBuySellSwitchStrategy(backtesting.Strategy):
