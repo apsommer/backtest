@@ -12,14 +12,14 @@ class Engine:
         self.strategy = None
         self.current_idx = None
 
-        # self.trading_days = 252 # working days per year
-        # self.risk_free_rate = 0 # for sharpe ratio calculation
+        self.trading_days = 252 # working days per year
+        self.risk_free_rate = 0 # for sharpe ratio calculation
 
         self.cash_series = { }
         self.stock_series = { }
 
-        # self.portfolio = None
-        # self.portfolio_buy_hold = None
+        self.portfolio = None
+        self.portfolio_buy_hold = None
 
     def add_data(self, data: pd.DataFrame):
         self.data = data
@@ -108,7 +108,7 @@ class Engine:
                 self.cash -= trade.price * trade.size
                 self.strategy.cash = self.cash
 
-        # clearing orders here assumes all limits orders are valid DAY, not GTC
+        # clearing orders here assumes all limit orders are valid DAY, not GTC
         self.strategy.orders = []
 
     def _get_stats(self):
@@ -145,12 +145,10 @@ class Engine:
                 ** (1 / ((ref.index[-1] - ref.index[0]).days / 365)) - 1) * 100)
 
         # annualized volatility: std_dev * sqrt(periods/year)
-        self.trading_days = 252
         metrics['volatility_ann'] = aum.pct_change().std() * np.sqrt(self.trading_days) * 100
         metrics['volatility_ann_buy_hold'] = ref.pct_change().std() * np.sqrt(self.trading_days) * 100
 
         # sharpe ratio: (rate - risk_free_rate) / volatility
-        self.risk_free_rate = 0
         metrics['sharpe_ratio'] = (metrics['returns_annualized'] - self.risk_free_rate) / metrics['volatility_ann']
         metrics['sharpe_ratio_buy_hold'] = (metrics['returns_annualized_buy_hold'] - self.risk_free_rate) / metrics['volatility_ann_buy_hold']
 
