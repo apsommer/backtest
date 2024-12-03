@@ -1,5 +1,3 @@
-from gc import get_stats
-
 import numpy as np
 import pandas as pd
 from tqdm import tqdm
@@ -103,7 +101,7 @@ class Engine:
                     side = order.side,
                     price = fill_price,
                     size = order.size,
-                    type = order.type,
+                    trade_type= order.type,
                     idx = self.current_idx)
 
                 self.strategy.trades.append(trade)

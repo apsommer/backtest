@@ -1,9 +1,9 @@
 class Trade():
-    def __init__(self, ticker, side, size, price, type, idx):
+    def __init__(self, ticker, side, size, price, trade_type, idx):
         self.ticker = ticker
         self.side = side
         self.size = size
-        self.type = type
+        self.type = trade_type
         self.idx = idx
         self.price = price
 

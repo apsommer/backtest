@@ -62,6 +62,6 @@ class Strategy():
         return self.data.loc[self.current_idx]['Close']
 
     def on_bar(self):
-        """ Overriden by instances """
+        """ Overriden by implementers """
         pass
 

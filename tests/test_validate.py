@@ -1,5 +1,3 @@
-from gc import get_stats
-
 import yfinance as yf
 from Strategy import Strategy
 from Engine import Engine, print_stats
