@@ -13,10 +13,10 @@ class BuySellSwitchLimit(Strategy):
             self.sell_limit('AAPL', size = 100, limit_price = limit_price)
             # print(self.current_idx, "sell")
 
-# todo can not match publication
+# todo does not match publication exactly
 #  timestamps coming adjusted to EST, makes sense
 #  auto_adjust = False affects prices slightly
-#  dividends since article?
+#  dividends since article, splits, buybacks?
 #  very close, but not identical results
 data = (yf.Ticker('AAPL').history(
     start = '2022-12-01',

@@ -6,10 +6,8 @@ class SMACrossover(Strategy):
 
     def on_bar(self):
 
-        # if flat, ...
+        # if flat ... buy, limit
         if self.position_size == 0:
-
-            # buy, limit
             if self.data.loc[self.current_idx].sma_12 > self.data.loc[self.current_idx].sma_24:
 
                 limit_price = self.close * 0.995
@@ -18,12 +16,12 @@ class SMACrossover(Strategy):
                 order_size = self.cash / limit_price
                 self.buy_limit('AAPL', size = order_size, limit_price = limit_price)
 
-            # sell, limit
-            elif self.data.loc[self.current_idx].sma_12 < self.data.loc[self.current_idx].sma_24:
+        # sell, limit
+        elif self.data.loc[self.current_idx].sma_12 < self.data.loc[self.current_idx].sma_24:
 
-                # sell to cover open long, never short
-                limit_price = self.close * 1.005
-                self.sell_limit('AAPL', size = self.position_size, limit_price = limit_price)
+            # sell to cover open long, never short
+            limit_price = self.close * 1.005
+            self.sell_limit('AAPL', size = self.position_size, limit_price = limit_price)
 
 # example data
 data = (yf.Ticker('AAPL').history(

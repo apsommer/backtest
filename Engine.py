@@ -61,10 +61,10 @@ class Engine:
 
                         fill_price = order.limit_price
                         can_fill = True
-                        print(self.current_idx, 'Buy Filled. ', "limit", order.limit_price," / low", self.data.loc[self.current_idx]['Low'])
-
-                    else:
-                        print(self.current_idx,'Buy NOT filled. ', "limit", order.limit_price," / low", self.data.loc[self.current_idx]['Low'])
+                    #     print(self.current_idx, 'Buy Filled. ', "limit", order.limit_price," / low", self.data.loc[self.current_idx]['Low'])
+                    #
+                    # else:
+                    #     print(self.current_idx,'Buy NOT filled. ', "limit", order.limit_price," / low", self.data.loc[self.current_idx]['Low'])
 
                 # market, always fills
                 else:
@@ -80,10 +80,10 @@ class Engine:
 
                         fill_price = order.limit_price
                         can_fill = True
-                        print(self.current_idx, 'Sell filled. ', "limit", order.limit_price, " / high", self.data.loc[self.current_idx]['High'])
-
-                    else:
-                        print(self.current_idx, 'Sell NOT filled. ', "limit", order.limit_price, " / high", self.data.loc[self.current_idx]['High'])
+                    #     print(self.current_idx, 'Sell filled. ', "limit", order.limit_price, " / high", self.data.loc[self.current_idx]['High'])
+                    #
+                    # else:
+                    #     print(self.current_idx, 'Sell NOT filled. ', "limit", order.limit_price, " / high", self.data.loc[self.current_idx]['High'])
 
                 # market, always fills
                 else:
