@@ -20,6 +20,4 @@ engine = Engine(initial_cash = 1000)
 engine.add_data(data)
 engine.add_strategy(BuyAndHoldStrategy())
 stats = engine.run()
-
-# display results in terminal
 print_stats(stats)

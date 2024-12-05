@@ -6,21 +6,14 @@ from Trade import Trade
 
 class Engine:
 
-    def __init__(self, initial_cash=100_000):
-        self.initial_cash = initial_cash
-        self.cash = initial_cash
+    def __init__(self, initial_cash = 100_000):
         self.data = None
         self.strategy = None
         self.current_idx = None
-
-        self.trading_days = 252 # working days per year
-        self.risk_free_rate = 0 # for sharpe ratio calculation
-
+        self.initial_cash = initial_cash
+        self.cash = initial_cash
         self.cash_series = { }
         self.stock_series = { }
-
-        self.portfolio = None
-        self.portfolio_buy_hold = None
 
     def add_data(self, data: pd.DataFrame):
         self.data = data
@@ -102,7 +95,7 @@ class Engine:
                     side = order.side,
                     price = fill_price,
                     size = order.size,
-                    trade_type= order.type,
+                    type= order.type,
                     idx = self.current_idx)
 
                 self.strategy.trades.append(trade)
@@ -114,7 +107,7 @@ class Engine:
 
     def _get_stats(self):
 
-        metrics = {}
+        metrics = { }
 
         # total percent return
         metrics['total_return'] = (
@@ -146,16 +139,18 @@ class Engine:
                 ** (1 / ((ref.index[-1] - ref.index[0]).days / 365)) - 1) * 100)
 
         # annualized volatility: std_dev * sqrt(periods/year)
+        self.trading_days = 252
         metrics['volatility_ann'] = aum.pct_change().std() * np.sqrt(self.trading_days) * 100
         metrics['volatility_ann_buy_hold'] = ref.pct_change().std() * np.sqrt(self.trading_days) * 100
 
         # sharpe ratio: (rate - risk_free_rate) / volatility
+        self.risk_free_rate = 0
         metrics['sharpe_ratio'] = (metrics['returns_annualized'] - self.risk_free_rate) / metrics['volatility_ann']
         metrics['sharpe_ratio_buy_hold'] = (metrics['returns_annualized_buy_hold'] - self.risk_free_rate) / metrics['volatility_ann_buy_hold']
 
         # max drawdown, percent
-        metrics['max_drawdown'] = _get_max_drawdown(portfolio.total_aum)
-        metrics['max_drawdown_buy_hold'] = _get_max_drawdown(portfolio_buy_hold)
+        metrics['max_drawdown'] = get_max_drawdown(portfolio.total_aum)
+        metrics['max_drawdown_buy_hold'] = get_max_drawdown(portfolio_buy_hold)
 
         # capture portfolios for plotting
         self.portfolio = portfolio
@@ -170,7 +165,13 @@ class Engine:
         plt.legend()
         plt.show()
 
-def _get_max_drawdown(close):
+    def print_trades(self):
+        print("")
+        for trade in self.strategy.trades:
+            print(trade)
+        print("")
+
+def get_max_drawdown(close):
     roll_max = close.cummax()
     daily_drawdown = close / roll_max - 1.0
     max_daily_drawdown = daily_drawdown.cummin()

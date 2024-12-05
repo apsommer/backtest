@@ -1,10 +1,10 @@
-class Trade():
-    def __init__(self, ticker, side, size, price, trade_type, idx):
+class Trade:
+    def __init__(self, ticker, side, size, idx, type, price):
         self.ticker = ticker
         self.side = side
         self.size = size
-        self.type = trade_type
         self.idx = idx
+        self.type = type
         self.price = price
 
     # string representation of class, called "dunder" for double under underscores
