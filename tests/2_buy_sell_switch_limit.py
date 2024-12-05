@@ -1,6 +1,4 @@
 import yfinance as yf
-from yfinance.utils import auto_adjust
-
 from Strategy import Strategy
 from Engine import Engine, print_stats
 

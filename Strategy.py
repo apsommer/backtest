@@ -32,7 +32,7 @@ class Strategy():
                 side = 'buy',
                 size = size,
                 idx = self.current_idx,
-                type='limit',
+                type = 'limit',
                 limit_price = limit_price))
 
     def sell_limit(self, ticker, limit_price, size = 1):
@@ -42,7 +42,7 @@ class Strategy():
                 side = 'sell',
                 size = -size,
                 idx = self.current_idx,
-                type='limit',
+                type = 'limit',
                 limit_price = limit_price))
 
     @property

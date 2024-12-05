@@ -42,5 +42,6 @@ engine.add_strategy(SMACrossover())
 stats = engine.run()
 
 # display results in terminal
+# engine.print_trades()
 print_stats(stats)
 engine.plot()

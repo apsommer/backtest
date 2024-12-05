@@ -9,4 +9,4 @@ class Trade:
 
     # string representation of class, called "dunder" for double under underscores
     def __repr__(self):
-        return f'<Trade: {self.idx} {self.ticker} {self.size}@{self.price}>'
+        return f'Trade: {self.idx} {self.ticker} {self.size} @ {self.price}'
