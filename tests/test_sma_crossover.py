@@ -43,3 +43,4 @@ stats = engine.run()
 
 # display results in terminal
 print_stats(stats)
+engine.plot()

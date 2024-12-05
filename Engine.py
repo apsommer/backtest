@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 from tqdm import tqdm
+import matplotlib.pyplot as plt
 from Trade import Trade
 
 class Engine:
@@ -153,8 +154,8 @@ class Engine:
         metrics['sharpe_ratio_buy_hold'] = (metrics['returns_annualized_buy_hold'] - self.risk_free_rate) / metrics['volatility_ann_buy_hold']
 
         # max drawdown, percent
-        metrics['max_drawdown'] = get_max_drawdown(portfolio.total_aum)
-        metrics['max_drawdown_buy_hold'] = get_max_drawdown(portfolio_buy_hold)
+        metrics['max_drawdown'] = _get_max_drawdown(portfolio.total_aum)
+        metrics['max_drawdown_buy_hold'] = _get_max_drawdown(portfolio_buy_hold)
 
         # capture portfolios for plotting
         self.portfolio = portfolio
@@ -162,7 +163,14 @@ class Engine:
 
         return metrics
 
-def get_max_drawdown(close):
+    def plot(self):
+        plt.plot(self.portfolio['total_aum'], label='Strategy')
+        plt.plot(self.portfolio_buy_hold, label='Buy & Hold')
+        plt.grid(color = '#dee0df', linewidth = 0.1)
+        plt.legend()
+        plt.show()
+
+def _get_max_drawdown(close):
     roll_max = close.cummax()
     daily_drawdown = close / roll_max - 1.0
     max_daily_drawdown = daily_drawdown.cummin()
